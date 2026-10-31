@@ -1,0 +1,28 @@
+plugins {
+    id 'java-library'
+}
+
+// InetAddressResolverProvider was added in Java 18. The launcher only loads this
+// component on runtimes that have it (see JREUtils.launchJavaVM).
+java {
+    sourceCompatibility = JavaVersion.VERSION_18
+    targetCompatibility = JavaVersion.VERSION_18
+}
+
+jar {
+    destinationDirectory.set(file("../app_pojavlauncher/src/main/assets/components/dns_fallback/"))
+    manifest {
+        attributes("Manifest-Version": "1.0",
+                "PreMain-Class": "net.kdt.pojavlaunch.dnsfallback.DnsFallbackAgent")
+    }
+    // Makes the jar reproducible so the version file actually is a version file
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+    // Write version file
+    def versionFile  = new File(project(":app_pojavlauncher").projectDir, "src/main/assets/components/dns_fallback/version")
+    def jarFile = archiveFile.get().asFile
+    doLast {
+        writeVersionFile(jarFile, versionFile)
+    }
+    outputs.file(versionFile) // Adds the versionFile to outputs
+}

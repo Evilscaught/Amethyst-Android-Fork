@@ -405,6 +405,13 @@ public class JREUtils {
             userArgs.add("-javaagent:"+new File(Tools.DIR_DATA,"arc_dns_injector/arc_dns_injector.jar").getAbsolutePath()+"=23.95.137.176");
         }
 
+        // Android's resolver refuses hostnames containing '_', which some DNS providers use as
+        // SRV targets (e.g. Cloudflare's _dc-srv.*). This agent adds a resolver that retries
+        // those names with a direct DNS query. Needs the Java 18+ resolver SPI.
+        if(runtime.javaVersion >= 18) {
+            userArgs.add("-javaagent:"+new File(Tools.DIR_DATA,"dns_fallback/dns_fallback.jar").getAbsolutePath());
+        }
+
         userArgs.addAll(JVMArgs);
         activity.runOnUiThread(() -> Toast.makeText(activity, activity.getString(R.string.autoram_info_msg,LauncherPreferences.PREF_RAM_ALLOCATION), Toast.LENGTH_SHORT).show());
         System.out.println(JVMArgs);
